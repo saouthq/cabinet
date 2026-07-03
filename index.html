@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>Le Cabinet</title>
+  <meta name="description" content="Qui est au cabinet ? Présence en temps réel.">
+  <meta name="theme-color" content="#F6F1E8">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Cabinet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wash" aria-hidden="true"></div>
+
+  <!-- ============ Écran d'accueil / choix de profil ============ -->
+  <main id="view-welcome" class="view" hidden>
+    <div class="welcome-hero">
+      <div class="hero-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      <h1 class="brand">Le&nbsp;Cabinet</h1>
+      <p class="welcome-sub">Qui est là, qui consulte, qui est sortie&nbsp;—<br>d'un coup d'œil.</p>
+    </div>
+
+    <section id="existing-profiles" class="profiles-block" hidden>
+      <h2 class="section-label">C'est vous&nbsp;?</h2>
+      <ul id="profile-list" class="profile-list"></ul>
+    </section>
+
+    <button id="btn-create" class="btn-primary">Créer mon profil</button>
+  </main>
+
+  <!-- ============ Écran création / édition de profil ============ -->
+  <main id="view-form" class="view" hidden>
+    <button id="btn-form-back" class="btn-back" aria-label="Retour">&larr;</button>
+    <h1 id="form-title" class="form-title">Votre profil</h1>
+
+    <form id="profile-form" autocomplete="off">
+      <label class="field-label" for="input-name">Votre prénom</label>
+      <input id="input-name" class="input-name" type="text" maxlength="40"
+             placeholder="Ex. Blandine" required enterkeyhint="done">
+
+      <p class="field-label">Votre couleur</p>
+      <div id="color-grid" class="color-grid" role="radiogroup" aria-label="Choix de couleur"></div>
+
+      <p id="form-error" class="form-error" role="alert" hidden></p>
+      <button type="submit" id="btn-save" class="btn-primary">C'est parti</button>
+    </form>
+  </main>
+
+  <!-- ============ Tableau de présence ============ -->
+  <main id="view-board" class="view" hidden>
+    <header class="board-header">
+      <div>
+        <h1 class="brand brand-small">Le&nbsp;Cabinet</h1>
+        <p id="board-date" class="board-date"></p>
+      </div>
+      <p id="board-summary" class="board-summary"></p>
+    </header>
+
+    <section class="me-card" aria-label="Mon statut">
+      <div class="me-head">
+        <span id="me-avatar" class="avatar"></span>
+        <div class="me-id">
+          <p id="me-name" class="me-name"></p>
+          <p class="me-hint">Où en êtes-vous&nbsp;?</p>
+        </div>
+        <button id="btn-edit" class="btn-icon" aria-label="Modifier mon profil">&#9998;</button>
+      </div>
+      <div id="status-picker" class="status-picker" role="radiogroup" aria-label="Mon statut"></div>
+    </section>
+
+    <section class="team-block" aria-label="L'équipe">
+      <h2 class="section-label">L'équipe</h2>
+      <ul id="team-list" class="team-list"></ul>
+      <p id="team-empty" class="team-empty" hidden>Vos collègues n'ont pas encore créé leur profil.</p>
+    </section>
+
+    <footer class="board-footer">
+      <button id="btn-switch" class="btn-ghost">Ce n'est pas vous&nbsp;? Changer de profil</button>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

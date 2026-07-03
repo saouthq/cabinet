@@ -1,0 +1,454 @@
+/* ==========================================================================
+   Le Cabinet — présence en temps réel
+   Esthétique : papier crème, serif Fraunces, chaleur d'un cabinet de soin.
+   ========================================================================== */
+
+:root {
+  --paper: #F6F1E8;
+  --paper-raised: #FDFAF4;
+  --ink: #2E2921;
+  --ink-soft: #6E6558;
+  --ink-faint: #A79C8C;
+  --line: rgba(46, 41, 33, 0.1);
+
+  --st-consultation: #B4532F;
+  --st-consultation-soft: #F3DED4;
+  --st-cabinet: #4A7C59;
+  --st-cabinet-soft: #DDE8DC;
+  --st-absente: #948A7B;
+  --st-absente-soft: #EAE4D9;
+
+  --radius: 22px;
+  --shadow: 0 1px 2px rgba(46, 41, 33, .05), 0 10px 30px -12px rgba(46, 41, 33, .18);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: "Karla", sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+/* Fond : lavis très doux dans les tons de l'équipe + grain papier */
+.wash {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(90vw 60vh at 110% -10%, rgba(180, 83, 47, .07), transparent 65%),
+    radial-gradient(80vw 55vh at -15% 20%, rgba(74, 124, 89, .08), transparent 60%),
+    radial-gradient(70vw 50vh at 50% 115%, rgba(217, 164, 65, .07), transparent 60%);
+}
+.wash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .18 0 0 0 0 .16 0 0 0 0 .13 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.view {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top) + 28px) 22px calc(env(safe-area-inset-bottom) + 28px);
+  animation: view-in .45s cubic-bezier(.22, .8, .3, 1) both;
+}
+
+@keyframes view-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ==================== Typo de marque ==================== */
+
+.brand {
+  font-family: "Fraunces", serif;
+  font-weight: 550;
+  font-style: italic;
+  font-size: 44px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.brand-small { font-size: 27px; }
+
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 12px;
+}
+
+/* ==================== Accueil ==================== */
+
+.welcome-hero { padding: 8vh 0 40px; text-align: center; }
+
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-bottom: 22px;
+}
+.hero-dots span {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  animation: dot-float 3.2s ease-in-out infinite;
+}
+.hero-dots span:nth-child(1) { background: var(--st-cabinet); }
+.hero-dots span:nth-child(2) { background: var(--st-consultation); animation-delay: .4s; }
+.hero-dots span:nth-child(3) { background: #D9A441; animation-delay: .8s; }
+
+@keyframes dot-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.welcome-sub {
+  margin-top: 14px;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.profiles-block { margin-bottom: 28px; }
+
+.profile-list { list-style: none; display: grid; gap: 10px; }
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+  box-shadow: var(--shadow);
+  font: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: transform .15s ease;
+}
+.profile-btn:active { transform: scale(.98); }
+.profile-btn .chev { margin-left: auto; color: var(--ink-faint); font-weight: 400; }
+
+/* ==================== Formulaire profil ==================== */
+
+.btn-back {
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  font-size: 19px;
+  color: var(--ink);
+  cursor: pointer;
+  margin-bottom: 22px;
+}
+
+.form-title {
+  font-family: "Fraunces", serif;
+  font-style: italic;
+  font-weight: 550;
+  font-size: 34px;
+  margin-bottom: 30px;
+}
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 26px 0 10px;
+}
+.field-label:first-of-type { margin-top: 0; }
+
+.input-name {
+  width: 100%;
+  padding: 16px 18px;
+  font: inherit;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color .2s;
+}
+.input-name:focus { border-color: var(--ink-soft); }
+.input-name::placeholder { color: var(--ink-faint); font-weight: 400; }
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.swatch {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: transform .18s cubic-bezier(.34, 1.56, .64, 1);
+}
+.swatch[aria-checked="true"] {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px currentColor;
+}
+.swatch:active { transform: scale(.92); }
+
+.form-error {
+  margin-top: 18px;
+  color: var(--st-consultation);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* ==================== Boutons génériques ==================== */
+
+.btn-primary {
+  display: block;
+  width: 100%;
+  margin-top: 30px;
+  padding: 18px;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--paper);
+  background: var(--ink);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform .15s ease, opacity .2s;
+}
+.btn-primary:active { transform: scale(.98); }
+.btn-primary:disabled { opacity: .5; }
+
+.btn-ghost {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.btn-icon {
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 50%;
+  width: 38px; height: 38px;
+  font-size: 15px;
+  color: var(--ink-faint);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ==================== Tableau ==================== */
+
+.board-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.board-date {
+  color: var(--ink-faint);
+  font-size: 14px;
+  margin-top: 5px;
+}
+.board-date::first-letter { text-transform: uppercase; }
+
+.board-summary {
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* --- Ma carte --- */
+
+.me-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 6px);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 34px;
+}
+
+.me-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.avatar {
+  width: 46px; height: 46px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: "Fraunces", serif;
+  font-weight: 600;
+  font-size: 21px;
+  color: #fff;
+}
+
+.me-id { min-width: 0; flex: 1; }
+.me-name {
+  font-family: "Fraunces", serif;
+  font-weight: 600;
+  font-size: 21px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.me-hint { font-size: 13px; color: var(--ink-faint); margin-top: 2px; }
+
+.status-picker { display: grid; gap: 9px; }
+
+.status-option {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 14px 16px;
+  font: inherit;
+  font-size: 16.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: left;
+  background: transparent;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, color .2s, transform .12s ease;
+}
+.status-option:active { transform: scale(.985); }
+
+.status-option .check {
+  width: 22px; height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-faint);
+  display: grid;
+  place-items: center;
+  color: transparent;
+  font-size: 12px;
+  transition: all .2s;
+}
+
+.status-option[aria-checked="true"] { color: var(--ink); font-weight: 700; }
+.status-option[aria-checked="true"] .check { color: #fff; border-color: transparent; }
+
+.status-option[data-status="consultation"][aria-checked="true"] { background: var(--st-consultation-soft); border-color: var(--st-consultation); }
+.status-option[data-status="consultation"][aria-checked="true"] .check { background: var(--st-consultation); }
+.status-option[data-status="cabinet"][aria-checked="true"] { background: var(--st-cabinet-soft); border-color: var(--st-cabinet); }
+.status-option[data-status="cabinet"][aria-checked="true"] .check { background: var(--st-cabinet); }
+.status-option[data-status="absente"][aria-checked="true"] { background: var(--st-absente-soft); border-color: var(--st-absente); }
+.status-option[data-status="absente"][aria-checked="true"] .check { background: var(--st-absente); }
+
+/* --- L'équipe --- */
+
+.team-list { list-style: none; display: grid; gap: 10px; }
+
+.team-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  animation: view-in .4s ease both;
+}
+
+.team-row .avatar { width: 40px; height: 40px; font-size: 18px; }
+
+.team-info { min-width: 0; flex: 1; }
+.team-name {
+  font-weight: 700;
+  font-size: 16.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.team-since { font-size: 12.5px; color: var(--ink-faint); margin-top: 2px; }
+
+.status-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 6px 11px;
+  border-radius: 999px;
+}
+.status-pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.status-pill[data-status="consultation"] { background: var(--st-consultation-soft); color: var(--st-consultation); }
+.status-pill[data-status="consultation"] .dot { background: var(--st-consultation); animation: pulse 1.6s ease-in-out infinite; }
+.status-pill[data-status="cabinet"] { background: var(--st-cabinet-soft); color: var(--st-cabinet); }
+.status-pill[data-status="cabinet"] .dot { background: var(--st-cabinet); }
+.status-pill[data-status="absente"] { background: var(--st-absente-soft); color: var(--st-absente); }
+.status-pill[data-status="absente"] .dot { background: var(--st-absente); }
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(180, 83, 47, .45); }
+  60% { box-shadow: 0 0 0 6px rgba(180, 83, 47, 0); }
+}
+
+.team-empty {
+  color: var(--ink-faint);
+  font-size: 15px;
+  padding: 18px 4px;
+}
+
+.board-footer { margin-top: 40px; text-align: center; }
+
+/* ==================== Toast ==================== */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 24px);
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 14.5px;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  z-index: 10;
+  animation: view-in .3s ease both;
+  max-width: calc(100vw - 44px);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
