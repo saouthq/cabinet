@@ -1,5 +1,5 @@
 /* Le Cabinet — service worker : coquille en cache, données toujours réseau */
-const CACHE = "cabinet-v1";
+const CACHE = "cabinet-v2";
 const SHELL = [
   "./",
   "./index.html",

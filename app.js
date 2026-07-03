@@ -13,8 +13,8 @@ const STATUSES = [
 ];
 
 const COLORS = [
-  "#C94F5F", "#E07A4F", "#B4532F", "#D9A441", "#7D8C4E",
-  "#4A7C59", "#3E8B96", "#4E6FA5", "#8571AE", "#A05579",
+  "#D96C93", "#B84A6E", "#E58579", "#E3A063", "#A34D74",
+  "#7FA588", "#6BA3A8", "#7C8FC9", "#9B7EC4", "#8A5A96",
 ];
 
 const $ = (id) => document.getElementById(id);
