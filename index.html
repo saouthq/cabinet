@@ -8,6 +8,14 @@
   <meta name="theme-color" content="#FAF2EE">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="apple-touch-startup-image" href="splash/splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)">
+  <link rel="apple-touch-startup-image" href="splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -42,9 +50,28 @@
     <h1 id="form-title" class="form-title">Votre profil</h1>
 
     <form id="profile-form" autocomplete="off">
+      <p class="field-label">Votre photo <span class="optional">· facultatif</span></p>
+      <div class="photo-row">
+        <button type="button" id="btn-photo" class="photo-preview" aria-label="Choisir une photo">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </button>
+        <div class="photo-actions">
+          <p class="photo-hint">Elle apparaîtra à la place de votre initiale.</p>
+          <button type="button" id="btn-photo-remove" class="btn-ghost" hidden>Retirer la photo</button>
+        </div>
+        <input type="file" id="input-photo" accept="image/*" hidden>
+      </div>
+
       <label class="field-label" for="input-name">Votre prénom</label>
       <input id="input-name" class="input-name" type="text" maxlength="40"
-             placeholder="Ex. Blandine" required enterkeyhint="done">
+             placeholder="Ex. Blandine" required enterkeyhint="next">
+
+      <label class="field-label" for="input-specialty">Votre spécialité <span class="optional">· facultatif</span></label>
+      <input id="input-specialty" class="input-name" type="text" maxlength="60"
+             placeholder="Ex. Ostéopathe" enterkeyhint="done">
 
       <p class="field-label">Votre couleur</p>
       <div id="color-grid" class="color-grid" role="radiogroup" aria-label="Choix de couleur"></div>
@@ -88,6 +115,14 @@
   </main>
 
   <div id="toast" class="toast" role="status" hidden></div>
+
+  <div id="install-banner" class="install-banner" hidden>
+    <p id="install-text">Installez l'app sur votre écran d'accueil pour l'avoir toujours sous la main.</p>
+    <div class="install-actions">
+      <button id="btn-install" class="btn-install" hidden>Installer</button>
+      <button id="btn-install-close" class="btn-ghost">Plus tard</button>
+    </div>
+  </div>
 
   <script type="module" src="app.js"></script>
 </body>

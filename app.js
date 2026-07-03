@@ -24,6 +24,9 @@ let meId = localStorage.getItem(STORAGE_KEY);
 let editingId = null; // null = création, sinon édition de ce profil
 let selectedColor = null;
 let channel = null;
+let pendingPhoto = null; // Blob à téléverser à l'enregistrement
+let photoRemoved = false;
+let formOpen = false; // fige l'affichage pendant l'édition (le temps réel continue en fond)
 
 /* ==================== Données ==================== */
 
@@ -63,24 +66,75 @@ async function setStatus(status) {
   }
 }
 
-async function saveProfile(name, color) {
+async function saveProfile(name, color, specialty) {
+  let id = editingId;
   if (editingId) {
     const { error } = await supabase
       .from("cabinet_members")
-      .update({ name, color })
+      .update({ name, color, specialty })
       .eq("id", editingId);
-    return error;
-  }
-  const { data, error } = await supabase
-    .from("cabinet_members")
-    .insert({ name, color, status: "cabinet" })
-    .select()
-    .single();
-  if (!error) {
-    meId = data.id;
+    if (error) return error;
+  } else {
+    const { data, error } = await supabase
+      .from("cabinet_members")
+      .insert({ name, color, specialty, status: "cabinet" })
+      .select()
+      .single();
+    if (error) return error;
+    id = data.id;
+    meId = id;
     localStorage.setItem(STORAGE_KEY, meId);
   }
+  return await savePhoto(id);
+}
+
+async function savePhoto(id) {
+  const path = `${id}.jpg`;
+  if (photoRemoved && !pendingPhoto) {
+    await supabase.storage.from("cabinet-avatars").remove([path]);
+    const { error } = await supabase
+      .from("cabinet_members")
+      .update({ avatar_url: null })
+      .eq("id", id);
+    return error;
+  }
+  if (!pendingPhoto) return null;
+  const { error: upError } = await supabase.storage
+    .from("cabinet-avatars")
+    .upload(path, pendingPhoto, { upsert: true, contentType: "image/jpeg", cacheControl: "3600" });
+  if (upError) return upError;
+  const { data } = supabase.storage.from("cabinet-avatars").getPublicUrl(path);
+  const { error } = await supabase
+    .from("cabinet_members")
+    .update({ avatar_url: `${data.publicUrl}?t=${Date.now()}` })
+    .eq("id", id);
   return error;
+}
+
+/* Recadre au carré et compresse la photo côté client (~512 px, JPEG) */
+function processPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const side = Math.min(img.naturalWidth, img.naturalHeight);
+      const size = Math.min(512, side);
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = size;
+      canvas.getContext("2d").drawImage(
+        img,
+        (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side,
+        0, 0, size, size
+      );
+      URL.revokeObjectURL(url);
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error("conversion"))),
+        "image/jpeg", 0.85
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("lecture")); };
+    img.src = url;
+  });
 }
 
 /* ==================== Temps réel ==================== */
@@ -120,6 +174,7 @@ function show(viewId) {
 }
 
 function render() {
+  if (formOpen) return; // ne pas fermer le formulaire sous les doigts de l'utilisatrice
   if (!meId) return renderWelcome();
   renderBoard();
 }
@@ -156,17 +211,30 @@ function avatar(member) {
   const s = document.createElement("span");
   s.className = "avatar";
   s.style.background = member.color;
-  s.textContent = [...member.name.trim()][0].toUpperCase();
+  if (member.avatar_url) {
+    const img = document.createElement("img");
+    img.src = member.avatar_url;
+    img.alt = "";
+    img.loading = "lazy";
+    s.append(img);
+  } else {
+    s.textContent = [...member.name.trim()][0].toUpperCase();
+  }
   return s;
 }
 
 function renderForm() {
+  formOpen = true;
   show("view-form");
   const me = editingId ? members.find((m) => m.id === editingId) : null;
   $("form-title").textContent = me ? "Modifier mon profil" : "Bienvenue !";
   $("btn-save").textContent = me ? "Enregistrer" : "C'est parti";
   $("input-name").value = me ? me.name : "";
+  $("input-specialty").value = me?.specialty || "";
   selectedColor = me ? me.color : null;
+  pendingPhoto = null;
+  photoRemoved = false;
+  setPhotoPreview(me?.avatar_url || null);
   $("form-error").hidden = true;
 
   const grid = $("color-grid");
@@ -239,8 +307,9 @@ function renderBoard() {
     const info = document.createElement("div");
     info.className = "team-info";
     info.innerHTML =
-      `<p class="team-name"></p><p class="team-since" data-since="${m.updated_at}"></p>`;
+      `<p class="team-name"></p><p class="team-since"><span class="team-specialty"></span><span data-since="${m.updated_at}"></span></p>`;
     info.querySelector(".team-name").textContent = m.name;
+    if (m.specialty) info.querySelector(".team-specialty").textContent = `${m.specialty} · `;
     const pill = document.createElement("span");
     pill.className = "status-pill";
     pill.dataset.status = m.status;
@@ -249,6 +318,7 @@ function renderBoard() {
     list.append(li);
   }
   renderTimes();
+  maybeShowInstallBanner();
 }
 
 function renderTimes() {
@@ -277,6 +347,77 @@ function toast(message) {
   toastTimer = setTimeout(() => (el.hidden = true), 3200);
 }
 
+/* ==================== Photo de profil ==================== */
+
+function setPhotoPreview(url) {
+  const btn = $("btn-photo");
+  btn.classList.toggle("has-photo", !!url);
+  btn.style.backgroundImage = url ? `url("${url}")` : "";
+  $("btn-photo-remove").hidden = !url;
+}
+
+$("btn-photo").addEventListener("click", () => $("input-photo").click());
+
+$("input-photo").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  try {
+    pendingPhoto = await processPhoto(file);
+    photoRemoved = false;
+    setPhotoPreview(URL.createObjectURL(pendingPhoto));
+  } catch {
+    toast("Impossible de lire cette photo");
+  }
+});
+
+$("btn-photo-remove").addEventListener("click", () => {
+  pendingPhoto = null;
+  photoRemoved = true;
+  setPhotoPreview(null);
+});
+
+/* ==================== Installation (vraie app) ==================== */
+
+const INSTALL_DISMISSED = "cabinet.installDismissed";
+const isStandalone =
+  window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+let installPrompt = null; // Android : événement natif
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  installPrompt = e;
+  maybeShowInstallBanner();
+});
+
+function maybeShowInstallBanner() {
+  if (isStandalone || localStorage.getItem(INSTALL_DISMISSED) || !meId) return;
+  const banner = $("install-banner");
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (installPrompt) {
+    // Android/Chrome : installation native en un tap
+    $("btn-install").hidden = false;
+    banner.hidden = false;
+  } else if (isIos) {
+    $("install-text").innerHTML =
+      "Pour l'avoir comme une vraie app&nbsp;: <strong>Partager</strong> <span class=\"share-glyph\">&#x2BAD;</span> puis «&nbsp;Sur l'écran d'accueil&nbsp;»";
+    banner.hidden = false;
+  }
+}
+
+$("btn-install").addEventListener("click", async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  await installPrompt.userChoice;
+  installPrompt = null;
+  $("install-banner").hidden = true;
+});
+
+$("btn-install-close").addEventListener("click", () => {
+  localStorage.setItem(INSTALL_DISMISSED, "1");
+  $("install-banner").hidden = true;
+});
+
 /* ==================== Événements ==================== */
 
 $("btn-create").addEventListener("click", () => {
@@ -289,7 +430,10 @@ $("btn-edit").addEventListener("click", () => {
   renderForm();
 });
 
-$("btn-form-back").addEventListener("click", render);
+$("btn-form-back").addEventListener("click", () => {
+  formOpen = false;
+  render();
+});
 
 $("btn-switch").addEventListener("click", () => {
   localStorage.removeItem(STORAGE_KEY);
@@ -308,7 +452,8 @@ $("profile-form").addEventListener("submit", async (e) => {
     return;
   }
   $("btn-save").disabled = true;
-  const error = await saveProfile(name, selectedColor);
+  const specialty = $("input-specialty").value.trim() || null;
+  const error = await saveProfile(name, selectedColor, specialty);
   $("btn-save").disabled = false;
   if (error) {
     errorEl.textContent =
@@ -319,6 +464,7 @@ $("profile-form").addEventListener("submit", async (e) => {
     return;
   }
   editingId = null;
+  formOpen = false;
   await fetchMembers();
 });
 
